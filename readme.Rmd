@@ -1,5 +1,7 @@
 ---
-md_document: github_document
+output:
+  md_document:
+    variant: markdown_github
 ---
 
 ```{r, echo = FALSE}

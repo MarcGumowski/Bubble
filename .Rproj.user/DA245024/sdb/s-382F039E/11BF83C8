@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\nauthor: \"Marc Gumowski\"\ncategories:\n- JavaScript\n- R\n- D3.js\nlayout: Bubble Chart\noutput: html_document\ncss: styles.css\ntags:\n- D3\n- Bubble Chart\n---\n\n```{r setup, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n# Install packages\nlist.of.packages <- c(\"readxl\", \"RODBC\", \"magrittr\", \"plyr\", \"zoo\", \"data.table\", \"extrafont\", \"maps\", \"ggplot2\", \n                      \"ggrepel\", \"RColorBrewer\", \"viridis\", \"dplyr\", \"sp\", \"circlize\", \"gridSVG\", \"ggiraph\",\n                      \"htmlwidgets\", \"shiny\", \"knitr\", \"xtable\", \"jsonlite\")\nnew.packages     <- list.of.packages[!(list.of.packages %in% installed.packages()[ ,\"Package\"])]\nif(length(new.packages)) {\n  install.packages(new.packages)\n}\n\n# Load packages\ninvisible(lapply(list.of.packages, library, character.only = TRUE))\n\n# Load data\n\ndbdata  <- read_xlsx(\"data.xlsx\")\n\ndbplot  <- subset(dbdata, select = c(Region, Country, `ISO-3A`, Total_Imports, Products, Product_Description, Avg_Product_Tariffs, Imports_Product_Share)) \ndbplot$Imports_Product <- dbplot$Total_Imports * dbplot$Imports_Product_Share / 100\n\ndbplot  <- data.table(dbplot)[order(Products)]\ndbplot[`ISO-3A` == 'EEC', 'ISO-3A'] <- 'EU'\n\n# List by product\ndbplot_each  <- list()\nfor (i in 1:length(unique(dbplot$Products))) {\n  dbplot_each[[i]] <- subset(dbplot, Products == unique(Products)[i], c(Region, Country, `ISO-3A`, Products, Product_Description, Imports_Product, Avg_Product_Tariffs))\n  names(dbplot_each)[i] <- paste(as.character(unique(subset(dbplot, \n                                                            Products == unique(Products)[i], Products))), '-', \n                                 as.character(unique(subset(dbplot, \n                                                            Products == unique(Products)[i], Product_Description))))\n}\n\n```\n\n```{r echo = FALSE, results = 'asis'}\n\n# Head\ncat('\n\n<!DOCTYPE html>\n<html>\n\n<head>\n  <title> Bubble Chart </title>\n</head>\n\n')\n\n# Body\ncat('<body>')\n\n#Title\ncat(\"<center><h1>Imports and applied tariffs by product groups</h1></center>\")\n\n# Button\ncat('\n<div class=buttons>\n<button class=\"myButton\" type=\"button\" id=\"combine\">World</button>\n<button class=\"myButton\" type=\"button\" id=\"region\">By Region</button>\n<button class=\"myButton\" type=\"button\" id=\"orderImports\">By Imports</button>\n<button class=\"myButton\" type=\"button\" id=\"orderTariffs\">By Tariffs</button>\n')\n# Dropdown menu\ncat(\"\n<select class='myButton' id='opts'>\",\npaste0(\"<option value = '\", paste(names(dbplot_each)), \"'>\", noquote(names(dbplot_each)), \"</option>\"),\"</select></div>\n\")\n# Div Plot 1\ncat('\n<div id=\"bubbleInteractive\" style=\"text-align:center; width:100%;\"></div>\n')\n\n# Script\n\n# Data, d3, Chart\ncat(\n  paste(\n    '<script>\n    var dataBubble = ', toJSON(dbplot_each), ';\n  </script>'\n  , sep=\"\"),\n'<script src=\"d3v4/d3.min.js\"></script> \n<script src=\"bubble.js\"></script>\n')\n\ncat('</body></html>')\n\n```\n\n",
+    "created" : 1498153067104.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4180115464",
+    "id" : "11BF83C8",
+    "lastKnownWriteTime" : 1498153960,
+    "last_content_update" : -2147483648,
+    "path" : "~/GitHub/Bubble/index.Rmd",
+    "project_path" : "index.Rmd",
+    "properties" : {
+        "last_setup_crc32" : "4D46E6833e1347c7"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
