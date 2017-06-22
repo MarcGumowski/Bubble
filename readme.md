@@ -11,4 +11,4 @@ In order to start playing with data charts:
 2.  Locate file index.html,
 3.  Open it with your favorite web browser (Preferably Chrome or Firefox),
 
-or simply click on [Bubble Chart](https://marcgumowski.github.io/Bubble/).
+or simply click on [Bubble Chart](https://marcgumowski.github.io/Bubble/) .
