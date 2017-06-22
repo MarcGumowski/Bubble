@@ -1,2 +1,7 @@
 $ cat .gitattributes
-*.rb linguist-language=javascript
+*.css_ linguist-language=CSS
+*.html_ linguist-language=HTML
+*.js_ linguist-language=JavaScript
+*.json_ linguist-language=JSON
+*.svg_ linguist-language=SVG
+
