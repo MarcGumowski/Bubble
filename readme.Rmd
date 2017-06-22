@@ -2,8 +2,8 @@
 author: "Marc Gumowski"
 categories:
 - JavaScript
-- R language
-d3: yes
+- R
+- D3.js
 layout: Bubble Chart
 output: html_document
 css: styles.css
@@ -12,94 +12,6 @@ tags:
 - Bubble Chart
 ---
 
-```{r setup, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-# Install packages
-list.of.packages <- c("readxl", "RODBC", "magrittr", "plyr", "zoo", "data.table", "extrafont", "maps", "ggplot2", 
-                      "ggrepel", "RColorBrewer", "viridis", "dplyr", "sp", "circlize", "gridSVG", "ggiraph",
-                      "htmlwidgets", "shiny", "knitr", "xtable", "jsonlite")
-new.packages     <- list.of.packages[!(list.of.packages %in% installed.packages()[ ,"Package"])]
-if(length(new.packages)) {
-  install.packages(new.packages)
-}
+# Bubble Chart
 
-# Load packages
-invisible(lapply(list.of.packages, library, character.only = TRUE))
-
-# Load data
-
-dbdata  <- read_xlsx("PlotTable.xlsx")
-
-dbplot  <- subset(dbdata, select = c(Region, Country, `ISO-3A`, Total_Imports, Products, Product_Description, Avg_Product_Tariffs, Imports_Product_Share)) 
-dbplot$Imports_Product <- dbplot$Total_Imports * dbplot$Imports_Product_Share / 100
-
-dbplot  <- data.table(dbplot)[order(Products)]
-dbplot[`ISO-3A` == 'EEC', 'ISO-3A'] <- 'EU'
-
-# List by product
-dbplot_each  <- list()
-for (i in 1:length(unique(dbplot$Products))) {
-  dbplot_each[[i]] <- subset(dbplot, Products == unique(Products)[i], c(Region, Country, `ISO-3A`, Products, Product_Description, Imports_Product, Avg_Product_Tariffs))
-  names(dbplot_each)[i] <- paste(as.character(unique(subset(dbplot, 
-                                                            Products == unique(Products)[i], Products))), '-', 
-                                 as.character(unique(subset(dbplot, 
-                                                            Products == unique(Products)[i], Product_Description))))
-}
-
-```
-
-```{r echo = FALSE, results = 'asis'}
-
-# Head
-cat('
-
-<!DOCTYPE html>
-<html>
-
-<head>
-  <title> Bubble Chart </title>
-</head>
-
-')
-
-# Body
-cat('<body>')
-
-#Title
-cat("<center><h1>Imports and applied tariffs by product groups</h1></center>")
-
-# Button
-cat('
-<div class=buttons>
-<button class="myButton" type="button" id="combine">World</button>
-<button class="myButton" type="button" id="region">By Region</button>
-<button class="myButton" type="button" id="orderImports">By Imports</button>
-<button class="myButton" type="button" id="orderTariffs">By Tariffs</button>
-')
-# Dropdown menu
-cat("
-<select class='myButton' id='opts'>",
-paste0("<option value = '", paste(names(dbplot_each)), "'>", noquote(names(dbplot_each)), "</option>"),"</select></div>
-")
-# Div Plot 1
-cat('
-<div id="bubbleInteractive" style="text-align:center; width:100%;"></div>
-')
-
-# Script
-
-# Data, d3, Chart
-cat(
-  paste(
-    '<script>
-    var dataBubble = ', toJSON(dbplot_each), ';
-  </script>'
-  , sep=""),
-'<script src="d3v4/d3.min.js"></script> 
-<script src="bubbleInteractive.js"></script>
-')
-
-cat('</body></html>')
-
-```
-
+This is a bubble chart representing the
