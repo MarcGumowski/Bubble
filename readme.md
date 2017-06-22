@@ -5,8 +5,8 @@ Bubble is a small repository implementing a bubble chart made with D3.js. The da
 
 The chart represents the imports and average tariffs of the different WTO members for the year 2013-2014 (depending on data availability).
 
-Get the visualisation:
+In order to start playing with data charts:
 
-1.  Open raw file index.html,
-2.  Save it as .html,
+1.  Clone the repository
+2.  locate file `index.html`
 3.  Open it with your favorite web browser (Preferably Chrome or Firefox).
