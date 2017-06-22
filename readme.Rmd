@@ -7,7 +7,6 @@ d3: yes
 layout: Bubble Chart
 output: html_document
 css: styles.css
-reviewer: []
 tags:
 - D3
 - Bubble Chart
