@@ -1,2 +1,2 @@
 $ cat .gitattributes
-*.rb linguist-language=JavaScript
+*.rb linguist-language=javascript
