@@ -30,21 +30,31 @@ invisible(lapply(list.of.packages, library, character.only = TRUE))
 
 dbdata  <- read_xlsx("data.xlsx")
 
-dbplot  <- subset(dbdata, select = c(Region, Country, `ISO-3A`, Total_Imports, Products, Product_Description, Avg_Product_Tariffs, Imports_Product_Share)) 
-dbplot$Imports_Product <- dbplot$Total_Imports * dbplot$Imports_Product_Share / 100
+# Subset data
+dbplotFull  <- subset(dbdata, select = c(Region, Country, `ISO-3A`, Total_Imports, Products, Product_Description, Avg_Product_Tariffs, Imports_Product_Share)) 
+dbplotFull$Imports_Product <- dbplotFull$Total_Imports * dbplotFull$Imports_Product_Share / 100
 
-dbplot  <- data.table(dbplot)[order(Products)]
-dbplot[`ISO-3A` == 'EEC', 'ISO-3A'] <- 'EU'
+dbplotFull  <- data.table(dbplotFull)[order(Products)]
+dbplotFull[`ISO-3A` == 'EEC', 'ISO-3A'] <- 'EU'
+dbplotFull[Country == "Côte d'Ivoire", 'Country'] <- "Ivory Coast"
+
+# Add Total
+dbplotTotal <- dbplotFull[ , list(Total_Imports = mean(Total_Imports), Products = "00", Product_Description = "Total",
+                                  Avg_Product_Tariffs = mean(Avg_Product_Tariffs), Imports_Product_Share = sum(Imports_Product_Share), 
+                                  Imports_Product = sum(Imports_Product)), by = list(Country, `ISO-3A`, Region)]
+
+# Merge
+dbplot <- rbind(dbplotTotal, dbplotFull)  
 
 # List by product
-dbplot_each  <- list()
+dbplotEach  <- list()
 for (i in 1:length(unique(dbplot$Products))) {
-  dbplot_each[[i]] <- subset(dbplot, Products == unique(Products)[i], c(Region, Country, `ISO-3A`, Products, Product_Description, Imports_Product, Avg_Product_Tariffs))
-  names(dbplot_each)[i] <- paste(as.character(unique(subset(dbplot, 
+  dbplotEach[[i]] <- subset(dbplot, Products == unique(Products)[i], c(Region, Country, `ISO-3A`, Imports_Product, Avg_Product_Tariffs))
+  names(dbplotEach)[i] <- paste(as.character(unique(subset(dbplot, 
                                                             Products == unique(Products)[i], Products))), '-', 
                                  as.character(unique(subset(dbplot, 
-                                                            Products == unique(Products)[i], Product_Description))))
-}
+                                                            Products == unique(Products)[i], Product_Description)))) 
+  }
 
 ```
 
@@ -79,7 +89,7 @@ cat('
 # Dropdown menu
 cat("
 <select class='myButton' id='opts'>",
-paste0("<option value = '", paste(names(dbplot_each)), "'>", noquote(names(dbplot_each)), "</option>"),"</select></div>
+paste0("<option value = '", paste(names(dbplotEach)), "'>", noquote(names(dbplotEach)), "</option>"),"</select></div>
 ")
 # Div Plot 1
 cat('
@@ -92,7 +102,7 @@ cat('
 cat(
   paste(
     '<script>
-    var dataBubble = ', toJSON(dbplot_each), ';
+    var dataBubble = ', toJSON(dbplotEach), ';
   </script>'
   , sep=""),
 '<script src="d3v4/d3.min.js"></script> 

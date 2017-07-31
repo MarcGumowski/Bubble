@@ -12,7 +12,7 @@
 
 
 // Initial Data
-var data = dataBubble["01 - Animal products"];
+var data = dataBubble["00 - Total"];
 
 window.onload = drawBubble(data);
 
@@ -23,39 +23,42 @@ window.onload = drawBubble(data);
 function drawBubble(data) {
   
   //convert numerical values from strings to numbers, rename variables
-  data = data.map(function(d){ d.value = +d['Imports_Product']; return d; });
-  data = data.map(function(d){ d.tariff = +d['Avg_Product_Tariffs']; return d});
+  data = data.map(function(d){ d.value = +d.Imports_Product; return d; });
+  data = data.map(function(d){ d.tariff = +d.Avg_Product_Tariffs; return d});
   data = data.map(function(d){ d.id = d['ISO-3A']; return d});
-  data = data.map(function(d){ d.name = d['Country']; return d});
-  data = data.map(function(d){ d.region = d['Region']; return d});
+  data = data.map(function(d){ d.name = d.Country; return d});
+  data = data.map(function(d){ d.region = d.Region; return d});
   //Get the max and min import value
   var maxValue = d3.max(data, function(d) { return d.value; });
   var minValue = d3.min(data, function(d) { return d.value; });
   //Get the max tariff value
   var maxTariff = d3.max(data, function(d) { return d.tariff; });
   // Format imports
-  var formatNumber = d3.format(",.4f"),
+  var formatNumber = d3.format(".4f"),
     format = function(d) { return formatNumber(d); };
-    
-  //Svg
-  var divBubble1 = d3.select('#bubbleInteractive').append('div')
-    .attr('class', 'tooltip')
-    .style('opacity', 0);
   
-  var rescale = 0.90, 
-    height = 600 * rescale,
-    width = 900 * rescale,
-    color = d3.scaleLinear()
-    .domain([0, 5, 10, 15, 20, 25, 30])
-    //viridis
-    //.range(["#FDE725", "#8FD744", "#35B779", "#21908C", "#31688E", "#443A83", "#440154"]);
-    //plasma
-    .range(["#F0F921", "#FEBC2A", "#F48849", "#DB5C68", "#B93289", "#8B0AA5", "#5402A3"]);
-    //magma
-    //.range(["#FCFDBF", "#FEBA80", "#F8765C", "#D3436E", "#982D80", "#5F187F", "#23115F"]);
-    //inferno
-    //.range(["#FCFFA4", "#FAC127", "#F57D15", "#D44842", "#9F2A63", "#65156E", "#280B54"]);
-    
+  var rescale = 1.25, 
+    height = 480 * rescale,
+    width = 960 * rescale,
+    color = d3.scaleThreshold()
+    .domain([0, 2, 4, 6, 8, 10, 15, 20])
+    // plasma
+    //.range(["#F0F921", "#FDC328", "#F89441", "#E56B5D", "#CC4678", "#A92395", "#7E03A8", "#4C02A1", "#0D0887"]);
+    // viridis
+    .range(["#440154", "#472D7B", "#3B528B", "#2C728E", "#21908C", "#27AD81", "#5DC863", "#AADC32", "#FDE725"]);    
+    // magma
+    //.range(["#000004", "#1D1147", "#51127C", "#822681", "#B63679", "#E65164", "#FB8861", "#FEC287", "#FCFDBF"]); 
+    // inferno
+    //.range(["#000004", "#210C4A", "#56106E", "#89226A", "#BB3754", "#E35932", "#F98C0A", "#F9C932", "#FCFFA4"]); 
+  
+  // Div
+  var div = d3.select('#bubbleInteractive').append('div')
+    .attr('class', 'tooltip')
+    .attr('id', 'bubbleInteractiveDiv')
+    .style("fill", "transparent")
+    .style('opacity', 0);  
+   
+  // Svg  
   var svg = d3.select('#bubbleInteractive')
     .append('svg')
     .attr('id', 'bubbleInteractiveSvg')
@@ -68,8 +71,9 @@ function drawBubble(data) {
   var rect = svg.append("rect")
     .attr("height", height)
     .attr("width", width)
-    .style("fill", "transparent");
-  
+    .style("fill", "transparent")
+    .style('opacity', 0);
+    
   var radiusScale = d3.scaleSqrt()
     .domain([minValue, maxValue])
     .range([2, 40]);
@@ -164,10 +168,10 @@ function drawBubble(data) {
   .style('fill', function(d) { return color(d.tariff); 
   })
   .on('mouseover', function(d) {      
-    divBubble1.transition()        
+    div.transition()        
     .duration(0)      
     .style('opacity', 1);      
-    divBubble1.html('<b><font size = "3">' + d.name + '</font></b>' + '<br/>' + d.region  + '<br/>' +'Imports: ' + format(d.value) + ' Bn US$' +'<br/>'+ 'Average applied tariffs: ' + d.tariff + '%')
+    div.html('<b><font size = "3">' + d.name + '</font></b>' + '<br/>' + d.region  + '<br/>' +'Imports: $' + format(d.value) + ' bn' +'<br/>'+ 'Average applied tariffs: ' + d.tariff + '%')
     .style('left', (d3.event.pageX) + 'px')       //Tooltip positioning, edit CSS
     .style('top', (d3.event.pageY - 28) + 'px');  //Tooltip positioning, edit CSS
     d3.select(this)
@@ -178,7 +182,7 @@ function drawBubble(data) {
     .style('fill-opacity', 0.5);
   })
   .on('mouseout', function(d) {       
-    divBubble1.transition()        
+    div.transition()        
     .duration(500)      
     .style('opacity', 0);
     d3.select(this)
@@ -271,34 +275,67 @@ function drawBubble(data) {
   
   
   //Legend 
-  var legendTitleText = ['Color: Average applied tariffs in % - Size: Amount of imports in billion US$ - Click the background to show labels'];
-  var legend = svg.selectAll('.legend')
-  .data(color.domain())
-  .enter().append('g')
-  .attr('class', 'legend')
-  .attr('transform', function(d, i) { return 'translate(' + i * 27 + ', 0)'; });
+  var legendTitleText = ['Color: Average applied tariffs in % - Size: Amount of imports in US$ billion - Click the background to show   labels'];
+  var legendRectText = [" 0<2 ", " 2<4 ", " 4<6 ", " 6<8 ", " 8<10", "10<15", "15<20", " 20< "];
   
-  legend.append('rect')
-  .attr('y', height - 38)
-  .attr('width', 27)
-  .attr('height', 18)
-  .style('fill', color);
+  var legendBubble = svg.append('g')
+    .attr('class', 'legendBubble')
+    .selectAll('g')
+    .data(color.domain())
+    .enter().append('g')
+    .attr('transform', function(d, i) { return 'translate(' + i * 36 + ', 0)'; });
+    
+  var legendBubbleSize = svg.append('g')
+    .attr('class', 'legend')
+    .selectAll('g')
+    .data([d3.format(".1r")(maxValue), d3.format(".1r")(maxValue) / 2, d3.format(".1r")(d3.format(".1r")(maxValue) / 10)])
+    .enter().append('g');
   
-  legend.append('text')
-  .attr('y', height - 46)
-  .attr('x', 18)
-  .attr('dy', '.35em')
-  .style('text-anchor', 'end')
-  .text(function(d) { return d; });
+  legendBubble.append('rect')
+    .attr('y', height - 38)
+    .attr('x', 100)
+    .attr('width', 36)
+    .attr('height', 10)
+    .style('fill', color);
   
-  legend.append('text')
-  .data(legendTitleText)
-  .attr('y', height - 10)
-  .attr('x', 0)
-  .attr('dy', '.35em')
-  .text(function(d) {
-    return d;
-  });
+  legendBubble.append('text')
+    .data(legendRectText)
+    .attr('y', height - 46)
+    .attr('x', 118)
+    .attr('dy', '.35em')
+    .style('text-anchor', 'middle')
+    .style('fill', '#666666')
+    .style('font', '10px sans-serif')
+    .style('font-family', 'calibri')
+    .text(function(d) { return d; });
+  
+  legendBubble.append('text')
+    .data(legendTitleText)
+    .attr('y', height - 10)
+    .attr('x', 100)
+    .attr('dy', '.35em')
+    .style('fill', '#666666')
+    .style('font', '14px sans-serif')
+    .style('font-family', 'calibri')
+    .text(function(d) { return d; });
+
+  legendBubbleSize.append('circle')
+    .attr("transform", "translate(" + 50 + "," + (height - 1) + ")")
+    .attr("cy", function(d) { return -radiusScale(d); })
+    .attr("r", radiusScale)
+    .style("fill", "none")
+    .style("stroke", "#ccc")
+    .style("stroke-width", "1.5px");
+
+  legendBubbleSize.append("text")
+    .attr("transform", "translate(" + 50 + "," + height + ")")
+    .attr("y", function(d) { return -2.2 * radiusScale(d) + 3; })
+    .attr("dy", "1.3em")
+    .text(function(d) { return d; })
+    .style("fill", "#666666")
+    .style("font-family", "calibri")
+    .style("font", "10px sans-serif")
+    .style("text-anchor", "middle");
     
 }
 
@@ -311,6 +348,7 @@ function updateData() {
   var newArray = d3.select("#opts").node().value;
   var data = dataBubble[newArray];
   d3.select("#bubbleInteractiveSvg").remove();
+  d3.select("#bubbleInteractiveDiv").remove();
   drawBubble(data);
 }
 
