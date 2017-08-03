@@ -82,7 +82,7 @@ function drawBubble(data) {
   
   // Constants used in the simulation
   var strengthCombine = 0.1;
-  var strengthMove = 0.2;
+  var strengthMove = 0.4;
   var strengthCharge = -2;
   var strengthCollide = 0.5;
   
@@ -99,19 +99,19 @@ function drawBubble(data) {
     
   var forceXSeparate =  d3.forceX(function(d) {
     if(d.region === 'North America') {
-      return 175 * rescale;
+      return width / 6;
     } else if(d.region === 'South and Central America and the Caribbean') {
-      return 200 * rescale;
+      return width / 4;
     } else if(d.region === 'Europe') {
-      return 450 * rescale;
+      return width / 2;
     } else if(d.region === 'Africa') {
-      return 450 * rescale;
+      return width * (11 / 20);
     } else if(d.region === 'Commonwealth of Independent States (CIS)') {
-      return 600 * rescale;
+      return width * (3 / 5);
     } else if(d.region === 'Middle East') {
-      return 550 * rescale;
+      return width * (3 / 5);
     } else if(d.region === 'Asia') {
-      return 750 * rescale;
+      return width * (6 / 8);
     } else {
       return width / 2;
     }
@@ -119,19 +119,19 @@ function drawBubble(data) {
   
   var forceYSeparate =  d3.forceY(function(d) {
     if(d.region === 'North America') {
-      return 200 * rescale;
+      return height / 4;
     } else if(d.region === 'South and Central America and the Caribbean') {
-      return 400 * rescale;
+      return height * (3 / 5);
     } else if(d.region === 'Europe') {
-      return 150 * rescale;
+      return height / 4;
     } else if(d.region === 'Africa') {
-      return 350 * rescale;
+      return height / 2;
     } else if(d.region === 'Commonwealth of Independent States (CIS)') {
-      return 125 * rescale;
+      return height / 5;
     } else if(d.region === 'Middle East') {
-      return 245 * rescale;
+      return height * (3 / 8);
     } else if(d.region === 'Asia') {
-      return 250 * rescale;
+      return height * (3 / 8);
     } else {
       return height/ 2;
     }
@@ -181,6 +181,18 @@ function drawBubble(data) {
     .style('stroke', color(d.tariff))
     .style('fill-opacity', 0.5);
   })
+  .on('mousemove', function(d) {      
+    div.html('<b><font size = "3">' + d.name + '</font></b>' + '<br/>' + d.region  + '<br/>' +'Imports: $' + 
+    format(d.value) + ' bn' +'<br/>'+ 'Average applied tariffs: ' + d.tariff + '%')
+    .style('left', (d3.event.pageX + 10) + 'px')       //Tooltip positioning, edit CSS
+    .style('top', (d3.event.pageY - 80) + 'px');  //Tooltip positioning, edit CSS
+    d3.select(this)
+    .transition()
+    .duration(0)
+    .style('stroke-width', 1)
+    .style('stroke', color(d.tariff))
+    .style('fill-opacity', 0.5);
+  })    
   .on('mouseout', function(d) {       
     div.transition()        
     .duration(500)      
@@ -205,7 +217,45 @@ function drawBubble(data) {
     .style('fill', '#666666')
     .style('font', '0px sans-serif')
     .style('font-family', 'calibri')
-    .style('text-anchor', 'middle');
+    .style('text-anchor', 'middle')
+    .on('mouseover', function(d) {      
+      div.transition()        
+      .duration(0)      
+      .style('opacity', 1);      
+      div.html('<b><font size = "3">' + d.name + '</font></b>' + '<br/>' + d.region  + '<br/>' +'Imports: $' + 
+      format(d.value) + ' bn' +'<br/>'+ 'Average applied tariffs: ' + d.tariff + '%')
+      .style('left', (d3.event.pageX + 10) + 'px')       //Tooltip positioning, edit CSS
+      .style('top', (d3.event.pageY - 80) + 'px');  //Tooltip positioning, edit CSS
+    d3.select(this.parentNode).selectAll('.countryBubble')
+      .transition()
+      .duration(0)
+      .style('stroke-width', 1)
+      .style('stroke', color(d.tariff))
+      .style('fill-opacity', 0.5);
+    })
+    .on('mousemove', function(d) {      
+      div.html('<b><font size = "3">' + d.name + '</font></b>' + '<br/>' + d.region  + '<br/>' +'Imports: $' + 
+      format(d.value) + ' bn' +'<br/>'+ 'Average applied tariffs: ' + d.tariff + '%')
+      .style('left', (d3.event.pageX + 10) + 'px')       //Tooltip positioning, edit CSS
+      .style('top', (d3.event.pageY - 80) + 'px');  //Tooltip positioning, edit CSS
+    d3.select(this.parentNode).selectAll('.countryBubble')
+      .transition()
+      .duration(0)
+      .style('stroke-width', 1)
+      .style('stroke', color(d.tariff))
+      .style('fill-opacity', 0.5);
+    })
+    .on('mouseout', function(d) {       
+      div.transition()        
+      .duration(500)      
+      .style('opacity', 0);
+    d3.select(this.parentNode).selectAll('.countryBubble')
+      .transition()
+      .duration(0)
+      .style('stroke-width', 'none')
+      .style('stroke', 'none')
+      .style('fill-opacity', 1);
+    });
   
     rect.on("click", function() {
     	  if (newFont === '0px sans-serif') {
