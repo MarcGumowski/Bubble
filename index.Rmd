@@ -6,7 +6,7 @@ categories:
 - D3.js
 layout: Bubble Chart
 output: html_document
-css: styles.css
+css: src/styles.css
 tags:
 - D3
 - Bubble Chart
@@ -27,7 +27,6 @@ if(length(new.packages)) {
 invisible(lapply(list.of.packages, library, character.only = TRUE))
 
 # Load data
-
 dbdata  <- read_xlsx("data.xlsx")
 
 # Subset data
@@ -105,8 +104,8 @@ cat(
     var dataBubble = ', toJSON(dbplotEach), ';
   </script>'
   , sep=""),
-'<script src="d3v4/d3.min.js"></script> 
-<script src="bubble.js"></script>
+'<script src="src/d3v4/d3.min.js"></script> 
+<script src="src/bubble.js"></script>
 ')
 
 cat('</body></html>')
